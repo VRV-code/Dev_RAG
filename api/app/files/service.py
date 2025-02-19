@@ -19,6 +19,7 @@ from sqlmodel import desc, select
 from docling.datamodel.base_models import InputFormat
 
 from api.app.db.models import FileRag
+from api.app.db.models import LLMRag
 
 from api.app import logger
 
@@ -169,5 +170,64 @@ class FileService:
         # Delete de la db PostgreSQL
         if file_to_delete is not None:
             await session.delete(file_to_delete)
+
+            await session.commit()
+
+
+    async def create_llm(
+        self, file_data: UploadFile, session: AsyncSession, export_to: str = "markdown"
+    ) -> LLMRag:
+        # Extraire le contenu sous forme de bytes
+        file_bytes_stream = file_data.file.read()
+        # logger.info(f"FILES_BYTES: {file_bytes_stream} bytes")
+
+        logger.info(
+            f"Fichier {file_data.filename} détecté avec extension {file_data.filename.split('.')[-1]}"
+        )
+
+        # Enregistrement du fichier localement
+        local_file.create_local_llm(
+            llmname=file_data.llmname, llm_bytes_stream=file_bytes_stream
+        )
+
+        source = DocumentStream(
+            name=file_data.llmname, stream=io.BytesIO(file_bytes_stream)
+        )
+        logger.debug(f"Fichier {file_data.llmname} prêt pour la conversion.")
+        try:
+            docling_document_from_llm = self.converter.convert(source).document
+        except Exception as e:
+            logger.error(
+                f"Erreur de conversion pour le fichier {file_data.llmname}: {e}"
+            )
+            raise HTTPException(
+                status_code=400,
+                detail=f"Format de fichier non pris en charge: {file_data}",
+            )
+
+        # Enregistrement du fichier dans la base de données
+        if export_to == "markdown":
+            self.parsed_llm = docling_document_from_llm.export_to_markdown(
+                image_mode=ImageRefMode.REFERENCED
+            )
+            converted_lmm_extension = "md"
+        elif export_to == "html":
+            self.parsed_llm = docling_document_from_llm.export_to_html()
+
+        new_llm = LLMRag(llmname=file_data.llmname)
+        session.add(new_llm)
+        await session.commit()
+
+        return new_llm
+
+    async def delete_llm(self, llm_uid: str, session: AsyncSession):
+        llm_to_delete = await self.get_llm(llm_uid, session)
+
+        # Delete en local
+        local_file.delete_local_llm(lmm=llm_to_delete.llmname)
+
+        # Delete de la db PostgreSQL
+        if llm_to_delete is not None:
+            await session.delete(llm_to_delete)
 
             await session.commit()

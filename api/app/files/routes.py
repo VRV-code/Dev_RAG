@@ -8,6 +8,7 @@ from api.app.vector_db.schemas import FileForChunkModel
 from api.app.vector_db.service import ChunkService, VectorDatabaseService
 from api.app.db.main import get_session
 from api.app.db.models import FileRag
+from api.app.db.models import LLMRagRag
 from .service import FileService
 
 file_router = APIRouter()
@@ -16,7 +17,11 @@ file_service = FileService()
 chunk_service = ChunkService()
 vectordb_service = VectorDatabaseService()
 
-
+@file_router.post(
+    "/create_file",
+    status_code=status.HTTP_201_CREATED,
+    response_model=LLMRag,
+)
 @file_router.post(
     "/create_file",
     status_code=status.HTTP_201_CREATED,

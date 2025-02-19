@@ -38,6 +38,22 @@ class FileRag(SQLModel, table=True):
     def __repr__(self):
         return f"<FileRag {self.filename}>"
 
+class LLMRag(SQLModel, table=True):
+    __tablename__ = "llm"
+    __table_args__ = {
+        'extend_existing': True,
+    }
+
+    uid: uuid.UUID = Field(sa_column=Column(pg.UUID, nullable=False, primary_key=True, default=uuid.uuid4))
+    llmname: str = Field(sa_column=Column(pg.TEXT, unique=True))
+    # user_uid: Optional[uuid.UUID] = Field(default=None, foreign_key="users.uid")
+    created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
+
+    # user: Optional[User] = Relationship(back_populates="files")
+    # __table_args__ = (UniqueConstraint("filename", "user_uid", name="unique_filename_user"),)
+
+    def __repr__(self):
+        return f"<FileRag {self.llmname}>"
 
 class ChatLog(SQLModel, table=True):
     __tablename__ = "chat_logs"
