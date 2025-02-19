@@ -1,0 +1,7 @@
+dossier/
+qdrant-db-data/
+*.gguf
+*.pdf
+*.csv
+*.md
+*.ipynb

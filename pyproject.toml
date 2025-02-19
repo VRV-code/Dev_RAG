@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "medinfoassist"
+version = "0.1.0"
+description = "package for modules for the RAG system"
+authors = ["Etsuko2003 <nestoraraba@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "api" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+docling = "^2.14.0"
+openai = "^1.57.4"
+qdrant-client = { extras = ["qdrant"], version = "^1.12.1" }
+sentence-transformers = "^3.3.1"
+streamlit = "^1.41.1"
+streamlit-pdf-viewer = "^0.0.19"
+torch = "^2.5.1"
+torchvision = "^0.20.1"
+torchaudio = "^2.5.1"
+langchain-core = "^0.3.28"
+langchain = "^0.3.13"
+langchain-openai = "^0.2.14"
+langchain-community = "^0.3.13"
+alembic = "^1.14.0"
+sqlmodel = "^0.0.22"
+fastapi = "^0.115.6"
+uvicorn = { extras = ["standard"], version = "^0.34.0" }
+asyncpg = "^0.30.0"
+python-multipart = "^0.0.20"
+colorlog = "^6.9.0"
+psycopg2-binary = "^2.9.10"
+python-dotenv = "^1.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
